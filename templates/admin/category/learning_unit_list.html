@@ -1,0 +1,40 @@
+{% extends "admin/category/list_base.html" %}
+
+{% block table_header %}
+    <th class="px-6 py-3 border-b-2 text-left">ชื่อหน่วยการเรียนรู้</th>
+    <th class="px-6 py-3 border-b-2 text-left">รายวิชา (รหัส)</th>
+    <th class="px-6 py-3 border-b-2 text-left">ระดับชั้น</th>
+    <th class="px-6 py-3 border-b-2 text-left">ครูผู้สอน</th> {# เพิ่มคอลัมน์นี้เพื่อความชัดเจน #}
+{% endblock %}
+
+{% block table_body %}
+    {% for unit in units %}
+    <tr>
+        <td class="px-6 py-4 border-b font-medium">{{ unit.unit_name }}</td>
+        
+        {# --- แก้ไขส่วนนี้ --- #}
+        <td class="px-6 py-4 border-b text-sm text-gray-600">
+            {{ unit.course.course_code }} - {{ unit.course.subject_template.subject_name }}
+        </td>
+        <td class="px-6 py-4 border-b text-sm text-gray-600">
+            {{ unit.course.grade_level.grade_name }}
+        </td>
+        <td class="px-6 py-4 border-b text-sm text-gray-500">
+            {{ unit.course.teacher.username }}
+        </td>
+        
+        <td class="px-6 py-4 border-b text-right space-x-4">
+            {# Admin's view is read-only, so no edit/delete buttons #}
+            {# Or you can add a link to the teacher's profile or course details #}
+        </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5" class="text-center py-4">ยังไม่มีหน่วยการเรียนรู้ในระบบ</td></tr>
+    {% endfor %}
+{% endblock %}
+
+{% block after_table %}
+    {% if is_paginated %}
+        {% include 'partials/_pagination_simple.html' %}
+    {% endif %}
+{% endblock %}

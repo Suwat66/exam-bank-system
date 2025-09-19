@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}บันทึกการใช้งานระบบ{% endblock %}
+
+{% block content %}
+<div class="flex flex-wrap gap-4 justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">บันทึกการใช้งานระบบ</h1>
+    <a href="#" id="export-link" class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 shadow">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+        Export to Excel
+    </a>
+</div>
+
+<!-- Filter Form -->
+<div class="bg-white p-6 rounded-lg shadow-md mb-8">
+    <h2 class="text-xl font-semibold text-gray-700 mb-4">ตัวกรองข้อมูล</h2>
+    <form method="get" id="filter-form">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <label for="{{ filter.form.user.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ filter.form.user.label }}</label>
+                {{ filter.form.user }}
+            </div>
+            <div>
+                <label for="{{ filter.form.start_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ filter.form.start_date.label }}</label>
+                {{ filter.form.start_date }}
+            </div>
+            <div>
+                <label for="{{ filter.form.end_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ filter.form.end_date.label }}</label>
+                {{ filter.form.end_date }}
+            </div>
+        </div>
+        <div class="flex justify-end items-center mt-6 border-t pt-4 space-x-3">
+            <a href="{% url 'feedback:usage_logs' %}" class="px-3 py-2 text-sm text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 border">ล้างค่า</a>
+            <button type="submit" class="px-3 py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 font-semibold">ค้นหา</button>
+        </div>
+    </form>
+</div>
+
+<!-- Logs Table -->
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="overflow-x-auto">
+        <table class="min-w-full">
+            <thead>
+                <tr>
+                    <th class="px-6 py-3 border-b-2 text-left">ผู้ใช้งาน</th>
+                    <th class="px-6 py-3 border-b-2 text-left">กิจกรรม</th>
+                    <th class="px-6 py-3 border-b-2 text-left">IP Address</th>
+                    <th class="px-6 py-3 border-b-2 text-left">เวลา</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white">
+                {% for log in page_obj %}
+                <tr>
+                    <td class="px-6 py-4 border-b whitespace-nowrap">{{ log.user.username|default:"N/A" }}</td>
+                    <td class="px-6 py-4 border-b font-mono text-sm">{{ log.action }}</td>
+                    <td class="px-6 py-4 border-b font-mono text-sm">{{ log.ip_address|default:"-" }}</td>
+                    <td class="px-6 py-4 border-b text-sm text-gray-500 whitespace-nowrap">{{ log.action_time|date:"d M Y, H:i:s" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center py-6 text-gray-500">ไม่พบข้อมูลตามเงื่อนไขที่ระบุ</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+        <div class="mt-6">
+            {% include 'partials/_pagination_simple.html' %}
+        </div>
+    {% endif %}
+</div>
+
+<!-- JavaScript to dynamically update the export link -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterForm = document.getElementById('filter-form');
+    const exportLink = document.getElementById('export-link');
+    // Base URL for the export view, correctly namespaced
+    const baseUrl = "{% url 'feedback:export_logs_excel' %}";
+
+    function updateExportLink() {
+        // Create a URLSearchParams object from the current form data
+        const params = new URLSearchParams(new FormData(filterForm));
+        // Set the href of the export link to the base URL plus the serialized form parameters
+        exportLink.href = `${baseUrl}?${params.toString()}`;
+    }
+
+    // Update the link whenever a filter value changes
+    filterForm.addEventListener('change', updateExportLink);
+    
+    // Update the link when the form is submitted for filtering
+    filterForm.addEventListener('submit', function(e) {
+        updateExportLink();
+    });
+
+    // Also update the link on initial page load to reflect any pre-filled filters (e.g., from URL)
+    updateExportLink();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}จัดการ{{ title }}{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">จัดการ{{ title|default:'ข้อมูล' }}</h1>
+    
+    {# --- แก้ไขส่วนนี้ --- #}
+    {# แสดงปุ่มนี้ก็ต่อเมื่อมี create_url ถูกส่งมาเท่านั้น #}
+    {% if create_url %}
+        <a href="{% url create_url %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">เพิ่ม{{ title|default:'ข้อมูล' }}ใหม่</a>
+    {% endif %}
+
+</div>
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="overflow-x-auto">
+        <table class="min-w-full">
+            <thead>
+                <tr>
+                    {% block table_header %}{% endblock %}
+                    <th class="px-6 py-3 border-b-2"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% block table_body %}{% endblock %}
+            </tbody>
+        </table>
+    </div>
+    
+    {# ย้าย Pagination มาไว้ที่นี่โดยตรง #}
+    {% if is_paginated %}
+        {% include 'partials/_pagination_simple.html' %}
+    {% endif %}
+</div>
+{% endblock %}

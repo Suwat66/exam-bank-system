@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}คลังคำถามของฉัน{% endblock %}
+
+{% block content %}
+<div class="flex flex-wrap gap-4 justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">คลังคำถามของฉัน</h1>
+    <a href="{% url 'question_create' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow">เพิ่มคำถามใหม่</a>
+</div>
+
+<!-- Filter Form -->
+<div class="bg-white p-6 rounded-lg shadow-md mb-8">
+    <h2 class="text-xl font-semibold text-gray-700 mb-4">ตัวกรองข้อมูล</h2>
+    <form method="get">
+        <div class="mb-6">
+            <label for="{{ filter.form.course_search.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ filter.form.course_search.label }}</label>
+            {{ filter.form.course_search }}
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+            <div>
+                <label for="{{ filter.form.learning_area.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ filter.form.learning_area.label }}</label>
+                {{ filter.form.learning_area }}
+            </div>
+            <div>
+                <label for="{{ filter.form.subject_template.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ filter.form.subject_template.label }}</label>
+                {{ filter.form.subject_template }}
+            </div>
+            <div>
+                <label for="{{ filter.form.grade_level.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ filter.form.grade_level.label }}</label>
+                {{ filter.form.grade_level }}
+            </div>
+            <div>
+                <label for="{{ filter.form.learning_unit.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ filter.form.learning_unit.label }}</label>
+                {{ filter.form.learning_unit }}
+            </div>
+            <div>
+                <label for="{{ filter.form.difficulty.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ filter.form.difficulty.label }}</label>
+                {{ filter.form.difficulty }}
+            </div>
+        </div>
+
+        <div class="flex justify-end items-center mt-6 border-t pt-4 space-x-3">
+            <a href="{% url 'question_list' %}" class="px-5 py-2 text-sm text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 border">ล้างค่า</a>
+            <button type="submit" class="px-5 py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 font-semibold">ค้นหา</button>
+        </div>
+    </form>
+</div>
+
+<!-- Questions Table -->
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="overflow-x-auto">
+        <table class="min-w-full">
+            <thead>
+                <tr>
+                    <th class="px-6 py-3 border-b-2 text-left">คำถาม</th>
+                    <th class="px-6 py-3 border-b-2 text-left">หน่วยการเรียนรู้</th>
+                    <th class="px-6 py-3 border-b-2 text-left">ประเภท</th>
+                    <th class="px-6 py-3 border-b-2 text-left">ระดับการเรียนรู้</th>
+                    <th class="px-6 py-3 border-b-2 text-left">ระดับความยาก</th>
+                    <th class="px-6 py-3 border-b-2"></th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for q in questions %}
+                <tr>
+                    <td class="px-6 py-4 w-2/5">{{ q.question_text|truncatewords:15 }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">{{ q.learning_unit.unit_name }}</td>
+                    <td class="px-6 py-4 text-sm">{{ q.get_question_type_display }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-700">
+                        {{ q.get_bloom_level_display }}
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                        {% if q.get_difficulty_category_tag == 'EASY' %} bg-green-100 text-green-800
+                        {% elif q.get_difficulty_category_tag == 'MEDIUM' %} bg-yellow-100 text-yellow-800
+                        {% else %} bg-red-100 text-red-800 {% endif %}">
+                            {{ q.get_difficulty_category }}
+                        </span>
+                        <span class="block text-xs text-gray-500 mt-1">(p={{ q.difficulty_level|floatformat:2 }})</span>
+                    </td>
+                    <td class="px-6 py-4 text-right space-x-4 whitespace-nowrap">
+                        <a href="{% url 'question_update' q.pk %}" class="text-yellow-600 hover:underline font-semibold">แก้ไข</a>
+                        <a href="{% url 'question_delete' q.pk %}" class="text-red-600 hover:underline font-semibold">ลบ</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-6 text-gray-500">
+                        <p class="mb-2">ไม่พบคำถามตามเงื่อนไขที่ระบุ หรือคุณยังไม่ได้สร้างคำถามใดๆ</p>
+                        <a href="{% url 'question_create' %}" class="px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600">สร้างคำถามแรกของคุณ</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if is_paginated %}
+        <div class="mt-6">
+            {% include 'partials/_pagination_simple.html' %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

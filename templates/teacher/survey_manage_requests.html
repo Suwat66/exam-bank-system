@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}จัดการคำขอประเมินซ้ำ{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl font-bold text-gray-800 mb-6">จัดการคำขอทำแบบประเมินซ้ำ</h1>
+
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <p class="mb-4 text-gray-600">รายการนี้แสดงผู้ใช้ที่ส่งแบบประเมินแล้ว (สถานะล็อก) ท่านสามารถปลดล็อกเพื่อให้ผู้ใช้สามารถส่งใหม่ได้</p>
+    <table class="min-w-full">
+        <thead>
+            <tr>
+                <th class="px-6 py-3 border-b-2 text-left">ผู้ใช้งาน</th>
+                <th class="px-6 py-3 border-b-2 text-left">โรงเรียน</th>
+                <th class="px-6 py-3 border-b-2 text-left">วันที่ส่งล่าสุด</th>
+                <th class="px-6 py-3 border-b-2"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for response in responses %}
+            <tr>
+                <td class="px-6 py-4 border-b">{{ response.user.username|default:"-" }}</td>
+                <td class="px-6 py-4 border-b">{{ response.school_name }}</td>
+                <td class="px-6 py-4 border-b">{{ response.submitted_at|date:"d M Y, H:i" }}</td>
+                <td class="px-6 py-4 border-b text-right">
+                    <a href="{% url 'feedback:unlock_survey' response.id %}" class="px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600">
+                        ปลดล็อก
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center py-4">ยังไม่มีผู้ส่งแบบประเมิน</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

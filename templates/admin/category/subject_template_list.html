@@ -1,0 +1,19 @@
+{% extends "admin/category/list_base.html" %}
+
+{% block table_header %}
+    <th class="px-6 py-3 border-b-2 text-left">ชื่อรายวิชา (แม่แบบ)</th>
+    <th class="px-6 py-3 border-b-2 text-left">กลุ่มสาระฯ</th>
+{% endblock %}
+
+{% block table_body %}
+    {% for tmpl in subject_templates %}
+    <tr>
+        <td class="px-6 py-4 border-b">{{ tmpl.subject_name }}</td>
+        <td class="px-6 py-4 border-b text-sm text-gray-600">{{ tmpl.learning_area.area_name }}</td>
+        <td class="px-6 py-4 border-b text-right space-x-4">
+            <a href="{% url 'subject_template_update' tmpl.pk %}" class="text-yellow-600 hover:underline">แก้ไข</a>
+            <a href="{% url 'subject_template_delete' tmpl.pk %}" class="text-red-600 hover:underline">ลบ</a>
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}

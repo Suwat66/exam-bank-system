@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}แบบสอบถามความพึงพอใจ{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="text-center">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">แบบสอบถามความพึงพอใจ</h1>
+        <p class="text-gray-600 mb-8">ความคิดเห็นของคุณมีความสำคัญต่อการพัฒนาของเรา</p>
+    </div>
+
+    <div class="bg-white p-8 rounded-2xl shadow-lg">
+        <form method="post" class="space-y-10">
+            {% csrf_token %}
+
+            <!-- Section: Star Rating -->
+            <div>
+                <label class="text-lg font-semibold text-gray-700 block mb-4 text-center">{{ form.rating.label }}</label>
+                
+                <!-- Star Rating Container -->
+                <div class="rating-group flex justify-center items-center flex-row-reverse space-x-2 space-x-reverse">
+                    {% for radio in form.rating %}
+                    <div class="relative flex items-center">
+                        <!-- Hidden Radio Button (still functional) -->
+                        {{ radio.tag }}
+                        
+                        <!-- Visible Label with Star and Number -->
+                        <label for="{{ radio.id_for_label }}" class="rating-label flex items-center cursor-pointer text-gray-300 transition-colors duration-200 peer-hover:text-yellow-400 hover:!text-yellow-400 peer-checked:text-yellow-500">
+                            <span class="rating-star text-4xl">★</span>
+                            <span class="rating-number text-lg font-semibold ml-1">{{ radio.choice_label }}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if form.rating.errors %}
+                    <p class="mt-2 text-sm text-red-600 text-center">{{ form.rating.errors.as_text }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Section: Comments -->
+            <div>
+                <label for="{{ form.comments.id_for_label }}" class="text-lg font-semibold text-gray-700 block mb-2">{{ form.comments.label }}</label>
+                {{ form.comments }}
+                {% if form.comments.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.comments.errors.as_text }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Section: Submit Button -->
+            <div>
+                <button type="submit" class="w-full inline-flex items-center justify-center px-6 py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 font-semibold text-lg transition-transform transform hover:scale-105">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                    ส่งแบบสอบถาม
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Special CSS for advanced star rating hover effects -->
+<style>
+/* When hovering over the entire group, light up all labels */
+.rating-group:hover .rating-label {
+    color: #facc15; /* Tailwind's yellow-400 */
+}
+
+/* When hovering over a specific label, make subsequent labels (which are visually to the left) gray again */
+/* We target the star specifically to keep the number colored */
+.rating-label:hover ~ .rating-label .rating-star {
+    color: #d1d5db; /* Tailwind's gray-300 */
+}
+
+/* Ensure the currently hovered star is bright, overriding the group hover */
+.rating-label:hover .rating-star {
+    color: #facc15 !important; /* yellow-400, !important to override the previous rule */
+}
+
+/* Highlight the number of the hovered star */
+.rating-label:hover .rating-number {
+    color: #ca8a04; /* yellow-600 */
+}
+
+/* When a radio button is checked, make its associated label's star a darker, more permanent color */
+.peer:checked ~ .rating-label .rating-star {
+    color: #f59e0b; /* amber-500 */
+}
+
+/* Also make the number of the checked star a darker color */
+.peer:checked ~ .rating-label .rating-number {
+    color: #b45309; /* amber-700 */
+}
+</style>
+
+{% endblock %}

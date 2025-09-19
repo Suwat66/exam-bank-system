@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% block title %}ผลแบบประเมินความพึงพอใจ{% endblock %}
+
+{% block content %}
+<div class="flex flex-wrap gap-4 justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold text-gray-800">ผลสรุปแบบประเมินความพึงพอใจ</h1>
+    
+    {% if total_surveys > 0 %}
+    <div class="flex items-center space-x-3">
+        <a href="{% url 'feedback:export_surveys_excel' %}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 shadow">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+            Export to Excel
+        </a>
+        <a href="{% url 'feedback:clear_surveys' %}" class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 shadow">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+            ล้างข้อมูลทั้งหมด
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+{% if messages %}
+    <div class="mb-6">
+        {% for message in messages %}
+            <div class="p-4 rounded-md {% if message.tags == 'success' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if total_surveys > 0 %}
+<!-- Section: Summary and Chart -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+    <!-- Summary Cards -->
+    <div class="lg:col-span-1 space-y-6">
+        <div class="bg-white p-6 rounded-lg shadow-md text-center">
+            <h3 class="text-gray-500 text-sm font-medium uppercase tracking-wider">ผู้ตอบแบบประเมินทั้งหมด</h3>
+            <p class="text-4xl font-bold text-blue-600 mt-2">{{ total_surveys }}</p>
+            <p class="text-gray-500 text-sm">คน</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md text-center">
+            <h3 class="text-gray-500 text-sm font-medium uppercase tracking-wider">ค่าเฉลี่ยความพึงพอใจโดยรวม</h3>
+            <p class="text-4xl font-bold text-yellow-500 mt-2">{{ overall_avg|floatformat:2 }} ★</p>
+            <p class="text-gray-500 text-sm">จาก 5 คะแนน</p>
+        </div>
+    </div>
+    <!-- Chart -->
+    <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-xl font-semibold text-gray-700 mb-4">ค่าเฉลี่ยความพึงพอใจรายด้าน</h2>
+        {% if chart_data %}
+            <div class="relative h-64 md:h-80"><canvas id="surveyChart"></canvas></div>
+        {% else %}
+            <div class="flex items-center justify-center h-full text-gray-500">ยังไม่มีข้อมูลสำหรับแสดงกราฟ</div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Section: Detailed Category Stats -->
+<div class="bg-white p-6 rounded-lg shadow-md mb-8">
+    <h2 class="text-xl font-semibold text-gray-700 mb-4">รายละเอียดคะแนนเฉลี่ยรายข้อ</h2>
+    <div class="space-y-6">
+    {% for category, stats in category_stats.items %}
+        <div>
+            <h3 class="font-bold text-gray-800">{{ category }} (เฉลี่ย: <span class="text-blue-600">{{ stats.average|floatformat:2 }}</span>)</h3>
+            <ul class="mt-2 space-y-1 pl-5 text-sm list-disc list-inside">
+            {% for question in stats.questions %}
+                <li>{{ question.text }}: <span class="font-semibold text-gray-700">{{ question.avg|floatformat:2 }}</span></li>
+            {% endfor %}
+            </ul>
+        </div>
+    {% endfor %}
+    </div>
+</div>
+
+<!-- Section: Individual Suggestions -->
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-xl font-semibold text-gray-700 mb-4">ข้อเสนอแนะรายบุคคล</h2>
+    <div class="space-y-6 divide-y">
+    {% for response in responses %}
+        <div class="pt-4 first:pt-0">
+            <p class="text-sm font-semibold text-gray-800">
+                จาก: {{ response.school_name }} (โดย: {{ response.user.username|default:"-" }})
+                <span class="text-xs text-gray-500 font-normal ml-2">{{ response.submitted_at|date:"d M Y" }}</span>
+            </p>
+            <div class="mt-2 text-sm text-gray-600 space-y-2 pl-4">
+                {% if response.suggestion_likes %}<p><strong>สิ่งที่ชื่นชอบ:</strong> {{ response.suggestion_likes|linebreaksbr }}</p>{% endif %}
+                {% if response.suggestion_improvements %}<p><strong>สิ่งที่ควรปรับปรุง:</strong> {{ response.suggestion_improvements|linebreaksbr }}</p>{% endif %}
+                {% if response.suggestion_future %}<p><strong>ข้อเสนอแนะอื่นๆ:</strong> {{ response.suggestion_future|linebreaksbr }}</p>{% endif %}
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+</div>
+
+{% else %}
+<div class="text-center py-10 bg-white rounded-lg shadow-md">
+    <p class="text-gray-500">ยังไม่มีผู้ส่งแบบประเมิน</p>
+</div>
+{% endif %}
+
+{# ... โค้ด HTML ทั้งหมดด้านบนเหมือนเดิม ... #}
+
+<!-- Safe Data Transfer from Django to JavaScript using json_script -->
+{{ chart_labels|json_script:"chart-labels" }}
+{{ chart_data|json_script:"chart-data" }}
+
+<!-- JavaScript for Chart.js -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const canvas = document.getElementById('surveyChart');
+    if (canvas && JSON.parse(document.getElementById('chart-data').textContent).length > 0) {
+        // Retrieve data safely from the script tags
+        const labelsData = JSON.parse(document.getElementById('chart-labels').textContent);
+        const dataValues = JSON.parse(document.getElementById('chart-data').textContent);
+        
+        const ctx = canvas.getContext('2d');
+
+        // --- 1. กำหนดชุดสีสำหรับกราฟ ---
+        const backgroundColors = [
+            'rgba(59, 130, 246, 0.6)',   // Blue
+            'rgba(16, 185, 129, 0.6)',  // Green
+            'rgba(245, 158, 11, 0.6)',  // Amber
+            'rgba(139, 92, 246, 0.6)',   // Violet
+        ];
+        const borderColors = [
+            'rgba(59, 130, 246, 1)',
+            'rgba(16, 185, 129, 1)',
+            'rgba(245, 158, 11, 1)',
+            'rgba(139, 92, 246, 1)',
+        ];
+
+        const surveyChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labelsData,
+                datasets: [{
+                    label: 'คะแนนเฉลี่ย',
+                    data: dataValues,
+                    // --- 2. นำชุดสีมาใช้งาน ---
+                    backgroundColor: backgroundColors,
+                    borderColor: borderColors,
+                    borderWidth: 1,
+                    borderRadius: 4,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y', // <-- 3. (Optional) ทำให้กราฟเป็นแนวนอนเพื่อให้อ่าน Label ง่ายขึ้น
+                scales: {
+                    // ปรับแกน x และ y สำหรับกราฟแนวนอน
+                    x: { 
+                        beginAtZero: true, 
+                        max: 5,
+                        title: {
+                            display: true,
+                            text: 'คะแนนเฉลี่ย (เต็ม 5)'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            autoSkip: false // แสดงทุก Label
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { 
+                        display: false 
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) { label += ': '; }
+                                // ใช้ context.parsed.x สำหรับกราฟแนวนอน
+                                if (context.parsed.x !== null) { 
+                                    label += context.parsed.x.toFixed(2); 
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

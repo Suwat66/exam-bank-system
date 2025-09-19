@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}จัดการผู้ใช้งานทั้งหมด{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">จัดการผู้ใช้งานทั้งหมด</h1>
+    <!-- Optional: Add a button to go to Django Admin's user creation page -->
+    <a href="{% url 'admin:accounts_customuser_add' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow">
+        เพิ่มผู้ใช้ใหม่
+    </a>
+</div>
+
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="overflow-x-auto">
+        <table class="min-w-full">
+            <thead>
+                <tr>
+                    <th class="px-6 py-3 border-b-2 text-left">Username</th>
+                    <th class="px-6 py-3 border-b-2 text-left">ชื่อ-สกุล</th>
+                    <th class="px-6 py-3 border-b-2 text-left">Email</th>
+                    <th class="px-6 py-3 border-b-2 text-left">Role</th>
+                    <th class="px-6 py-3 border-b-2 text-center">สถานะ</th>
+                    <th class="px-6 py-3 border-b-2 text-left">วันที่เข้าร่วม</th>
+                    <th class="px-6 py-3 border-b-2"></th> {# Actions Column #}
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for user_obj in users %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="font-semibold">{{ user_obj.username }}</span>
+                        {% if user_obj.is_superuser %}
+                            <span class="ml-2 px-2 py-0.5 text-xs font-medium rounded-full bg-purple-100 text-purple-800">Superuser</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ user_obj.get_full_name|default:"-" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ user_obj.email }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ user_obj.get_role_display }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        {% if user_obj.is_active and user_obj.is_approved %}
+                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                Active
+                            </span>
+                        {% elif not user_obj.is_active and not user_obj.is_approved and user_obj.role == 'TEACHER' %}
+                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                Pending
+                            </span>
+                        {% else %}
+                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                Inactive
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user_obj.date_joined|date:"d M Y" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right space-x-4 text-sm font-medium">
+                        <a href="{% url 'accounts:admin_user_update' user_obj.pk %}" class="text-yellow-600 hover:text-yellow-800">แก้ไข</a>
+                        {# Prevent admin from deleting their own account #}
+                        {% if user_obj != request.user %}
+                            <a href="{% url 'accounts:admin_user_delete' user_obj.pk %}" class="text-red-600 hover:text-red-800">ลบ</a>
+                        {% else %}
+                            <span class="text-gray-400 cursor-not-allowed">ลบ</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-6 text-gray-500">
+                        ไม่พบข้อมูลผู้ใช้งาน
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {% if is_paginated %}
+        <div class="mt-6">
+            {% include 'partials/_pagination_simple.html' with page_obj=users %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

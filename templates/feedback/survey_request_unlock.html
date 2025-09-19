@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}ส่งแบบประเมินแล้ว{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto text-center">
+    <div class="bg-white p-8 rounded-lg shadow-md">
+        <svg class="mx-auto h-12 w-12 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <h1 class="mt-4 text-2xl font-bold text-gray-800">คุณได้ส่งแบบประเมินแล้ว</h1>
+        <p class="mt-4 text-gray-600">
+            ขอขอบคุณสำหรับข้อมูลของคุณ!
+            <br>
+            ระบบได้รับแบบประเมินของคุณแล้วเมื่อวันที่ 
+            <span class="font-semibold">{{ response.submitted_at|date:"d F Y" }}</span>
+        </p>
+        <p class="mt-4 text-gray-600">
+            หากท่านต้องการแก้ไขข้อมูลหรือส่งแบบประเมินใหม่อีกครั้ง 
+            <br>
+            โปรดติดต่อผู้ดูแลระบบเพื่อขอปลดล็อกการทำแบบประเมิน
+            <br>
+            <strong>📧 E-mail:</strong> suwat.in.65@ubu.ac.th
+        </p>
+        <div class="mt-8">
+            <a href="{% url 'teacher_dashboard' %}" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">กลับสู่หน้าหลัก</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

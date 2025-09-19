@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}หน่วยการเรียนรู้ของฉัน{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">หน่วยการเรียนรู้ของฉัน</h1>
+    <a href="{% url 'learning_unit_create' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow">เพิ่มหน่วยการเรียนรู้ใหม่</a>
+</div>
+
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="overflow-x-auto">
+        <table class="min-w-full">
+            <thead>
+                <tr>
+                    <th class="px-6 py-3 border-b-2 text-left">ชื่อหน่วยการเรียนรู้</th>
+                    <th class="px-6 py-3 border-b-2 text-left">สังกัดรายวิชา</th>
+                    <th class="px-6 py-3 border-b-2"></th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for unit in units %}
+                <tr>
+                    <td class="px-6 py-4">{{ unit.unit_name }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">{{ unit.course }}</td>
+                    <td class="px-6 py-4 text-right space-x-4 whitespace-nowrap">
+                        <a href="{% url 'learning_unit_update' unit.pk %}" class="text-yellow-600 hover:underline font-semibold">แก้ไข</a>
+                        <a href="{% url 'learning_unit_delete' unit.pk %}" class="text-red-600 hover:underline font-semibold">ลบ</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="text-center py-6 text-gray-500">
+                        <p>คุณยังไม่ได้สร้างหน่วยการเรียนรู้</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if is_paginated %}
+        <div class="mt-6">
+            {% include 'partials/_pagination_simple.html' %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

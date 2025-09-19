@@ -1,0 +1,14 @@
+ # Python cache
+ __pycache__/
+ *.pyc
+
+ # Database file
+ db.sqlite3
+
+ # Environment variables
+ .env
+
+ # Collected static and media files
+ staticfiles/
+ media/
+ ```

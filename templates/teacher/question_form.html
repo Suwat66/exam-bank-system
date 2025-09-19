@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% block title %}{{ form_title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">{{ form_title }}</h1>
+    
+    <form method="post" class="bg-white p-8 rounded-lg shadow-lg" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <!-- Comprehensive Error Display Section -->
+        {% if form.errors or formset.non_form_errors %}
+        <div class="p-4 mb-6 text-sm text-red-700 bg-red-100 rounded-lg">
+            <p class="font-bold">เกิดข้อผิดพลาด โปรดตรวจสอบข้อมูลด้านล่าง:</p>
+            <ul class="mt-2 list-disc list-inside">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <li>{{ field.label }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+                {% for error in formset.non_form_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <!-- ============================================== -->
+        <!-- ส่วนที่ 1: ฟอร์มคำถามหลัก (Main Question Form) -->
+        <!-- ============================================== -->
+        <fieldset class="space-y-6">
+            <legend class="text-xl font-semibold text-gray-800 border-b pb-3 mb-6">ข้อมูลคำถาม</legend>
+
+            <div>
+                <label for="{{ form.question_text.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ form.question_text.label }}</label>
+                {{ form.question_text }}
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="{{ form.question_type.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ form.question_type.label }}</label>
+                    {{ form.question_type }}
+                </div>
+                <div>
+                    <label for="{{ form.bloom_level.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ form.bloom_level.label }}</label>
+                    {{ form.bloom_level }}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                 <div>
+                    <label for="{{ form.learning_unit.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ form.learning_unit.label }}</label>
+                    {{ form.learning_unit }}
+                </div>
+                <div>
+                    <label for="{{ form.difficulty_level.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ form.difficulty_level.label }}</label>
+                    {{ form.difficulty_level }}
+                    {{ form.difficulty_level.help_text|safe }}
+                </div>
+            </div>
+
+            <div>
+                <label for="{{ form.image.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ form.image.label }}</label>
+                {% if form.instance.image %}
+                    <div class="my-2">
+                        <p class="text-xs text-gray-500">รูปภาพปัจจุบัน:</p>
+                        <a href="{{ form.instance.image.url }}" target="_blank">
+                            <img src="{{ form.instance.image.url }}" alt="ภาพประกอบ" class="max-h-48 rounded-md border">
+                        </a>
+                    </div>
+                {% endif %}
+                {{ form.image }}
+            </div>
+
+            <div>
+                <label for="{{ form.explanation.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">{{ form.explanation.label }}</label>
+                {{ form.explanation }}
+            </div>
+        </fieldset>
+
+        <!-- ============================================== -->
+        <!-- ส่วนที่ 2: ฟอร์มตัวเลือก (Choices Formset) -->
+        <!-- ============================================== -->
+        <div id="choices-section" class="mt-10">
+            <fieldset>
+                <legend class="text-xl font-semibold text-gray-800 border-b pb-3 mb-6">ตัวเลือก (สำหรับคำถามปรนัย)</legend>
+                
+                {{ formset.management_form }}
+                <div id="choice-forms-container" class="space-y-4">
+                    {% for choice_form in formset %}
+                    <div class="choice-form flex items-center space-x-4 p-4 border rounded-md {% if choice_form.errors %} border-red-500 bg-red-50 {% endif %}">
+                        <div class="flex-grow">
+                            {{ choice_form.id }}
+                            {{ choice_form.choice_text }}
+                            {{ choice_form.choice_text.errors }}
+                        </div>
+                        <div class="flex items-center">
+                            <label for="{{ choice_form.is_correct.id_for_label }}" class="mr-2 text-sm">ถูก</label>
+                            {{ choice_form.is_correct }}
+                        </div>
+                        {% if formset.can_delete and choice_form.instance.pk %}
+                            <div class="flex items-center">
+                                <label for="{{ choice_form.DELETE.id_for_label }}" class="mr-2 text-sm">ลบ</label>
+                                {{ choice_form.DELETE }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- ปุ่มเพิ่มตัวเลือก -->
+                <div class="mt-4">
+                    <button type="button" id="add-choice-btn" class="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 rounded-md">
+                        + เพิ่มตัวเลือก
+                    </button>
+                </div>
+            </fieldset>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-end space-x-4 mt-8 border-t pt-6">
+            <a href="{% url 'question_list' %}" class="px-6 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">ยกเลิก</a>
+            <button type="submit" class="px-6 py-2 text-white bg-green-600 rounded-md hover:bg-green-700">บันทึกคำถาม</button>
+        </div>
+    </form>
+</div>
+
+<!-- Empty form template for JavaScript cloning -->
+<div id="empty-form" class="hidden">
+    <div class="choice-form flex items-center space-x-4 p-4 border rounded-md">
+        <div class="flex-grow">
+            {{ formset.empty_form.choice_text }}
+        </div>
+        <div class="flex items-center">
+            <label for="{{ formset.empty_form.is_correct.id_for_label }}" class="mr-2 text-sm">ถูก</label>
+            {{ formset.empty_form.is_correct }}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const questionTypeSelect = document.getElementById('id_question_type');
+    const choicesSection = document.getElementById('choices-section');
+
+    // Function to show/hide the choices section based on question type
+    function toggleChoicesSection() {
+        if (questionTypeSelect && choicesSection) {
+            choicesSection.style.display = (questionTypeSelect.value === 'MCQ') ? 'block' : 'none';
+        }
+    }
+
+    // Check on page load
+    toggleChoicesSection();
+
+    // Check on change
+    if (questionTypeSelect) {
+        questionTypeSelect.addEventListener('change', toggleChoicesSection);
+    }
+
+    // --- Dynamic Formset ("Add Choice" button) ---
+    const addChoiceBtn = document.getElementById('add-choice-btn');
+    const container = document.getElementById('choice-forms-container');
+    const emptyFormTemplate = document.getElementById('empty-form');
+    const totalFormsInput = document.querySelector('#id_form-TOTAL_FORMS');
+
+    if (addChoiceBtn && container && emptyFormTemplate && totalFormsInput) {
+        addChoiceBtn.addEventListener('click', function() {
+            let formNum = parseInt(totalFormsInput.value);
+            // Replace '__prefix__' with the new form number
+            let newFormHtml = emptyFormTemplate.innerHTML.replace(/__prefix__/g, formNum);
+            
+            const newDiv = document.createElement('div');
+            // We can't just append the innerHTML directly. We need to parse it.
+            // A simple way is to assign it and get the first child.
+            // Note: This approach relies on the template having a single root element.
+            newDiv.innerHTML = newFormHtml; 
+            const newFormElement = newDiv.firstElementChild;
+
+            // Append the new form to the container
+            container.appendChild(newFormElement);
+            
+            // Increment the total forms count
+            totalFormsInput.value = formNum + 1;
+        });
+    }
+});
+</script>
+{% endblock %}

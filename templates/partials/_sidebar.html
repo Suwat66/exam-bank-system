@@ -1,0 +1,59 @@
+<aside class="w-64 bg-gray-800 text-gray-200 flex-shrink-0">
+    <div class="p-4 text-2xl font-bold border-b border-gray-700 text-white">
+        <a href="{% url 'dashboard_redirect' %}">ระบบคลังข้อสอบ</a>
+    </div>
+    <nav class="mt-5 px-2 space-y-1">
+        
+        <!-- ==================== ADMIN MENU ==================== -->
+        {% if user.role == 'ADMIN' %}
+            <a href="{% url 'accounts:admin_dashboard' %}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white">Dashboard</a>
+            
+            <div class="pt-4">
+                <span class="px-4 text-xs text-gray-400 uppercase font-semibold">จัดการระบบ</span>
+                <div class="mt-1 space-y-1">
+                    <a href="{% url 'area_list' %}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white">กลุ่มสาระฯ</a>
+                    <a href="{% url 'subject_template_list' %}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white">แม่แบบรายวิชา</a>
+                    <a href="{% url 'grade_level_list' %}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white">ระดับชั้น</a>
+                    <a href="{% url 'learning_unit_list_admin' %}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white">หน่วยการเรียนรู้ (ทั้งหมด)</a>
+                </div>
+            </div>
+            
+            <div class="pt-4">
+                <span class="px-4 text-xs text-gray-400 uppercase font-semibold">รายงาน</span>
+                <div class="mt-1 space-y-1">
+                    <a href="{% url 'feedback:usage_logs' %}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white">บันทึกการใช้งาน</a>
+                    <a href="{% url 'feedback:survey_results' %}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white">ผลแบบสอบถาม</a>
+                    <a href="{% url 'feedback:manage_survey_requests' %}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white">คำขอทำแบบประเมิน</a>
+                </div>
+            </div>
+
+        <!-- ==================== TEACHER MENU ==================== -->
+        {% elif user.role == 'TEACHER' %}
+            <a href="{% url 'teacher_dashboard' %}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white">Dashboard</a>
+            
+            <div class="pt-4">
+                <span class="px-4 text-xs text-gray-400 uppercase font-semibold">จัดการข้อมูล</span>
+                <div class="mt-1 space-y-1">
+                    <a href="{% url 'course_list' %}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white">รายวิชาของฉัน</a>
+                    <a href="{% url 'learning_unit_list' %}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white">หน่วยการเรียนรู้ของฉัน</a>
+                </div>
+            </div>
+
+            <div class="pt-4">
+                <span class="px-4 text-xs text-gray-400 uppercase font-semibold">คลังข้อสอบ</span>
+                <div class="mt-1 space-y-1">
+                    <a href="{% url 'question_list' %}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white">จัดการคลังคำถาม</a>
+                    <a href="{% url 'teacher_dashboard' %}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white">จัดการชุดข้อสอบ</a>
+                    <a href="{% url 'create_exam_auto' %}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white">สร้างข้อสอบอัตโนมัติ</a>
+                </div>
+            </div>
+            
+            <div class="pt-4">
+                <span class="px-4 text-xs text-gray-400 uppercase font-semibold">อื่นๆ</span>
+                <div class="mt-1 space-y-1">
+                    <a href="{% url 'feedback:survey_submit' %}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white">ส่งแบบสอบถาม</a>
+                </div>
+            </div>
+        {% endif %}
+    </nav>
+</aside>

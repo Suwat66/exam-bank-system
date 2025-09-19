@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Teacher Dashboard{% endblock %}
+
+{% block content %}
+{# โค้ดแสดง Messages ควรจะอยู่ใน base.html แล้ว เราจึงไม่ต้องการมันที่นี่อีก #}
+{# ลบ {% if messages %} ... {% endif %} บล็อกนี้ออกไปเลย #}
+
+<div class="flex flex-wrap gap-4 justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">Teacher Dashboard</h1>
+    <a href="{% url 'create_exam_auto' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow">สร้างชุดข้อสอบใหม่</a>
+</div>
+<p class="mt-2 text-gray-600">จัดการชุดข้อสอบ, คลังคำถาม, และรายวิชาของคุณ</p>
+
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+    <div class="bg-white p-6 rounded-lg shadow-md flex items-center space-x-4">
+        <div class="bg-indigo-100 p-3 rounded-full">
+            <svg class="h-6 w-6 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+        </div>
+        <div>
+            <p class="text-gray-500 text-sm font-medium">รายวิชาของฉัน</p>
+            <p class="text-2xl font-bold text-gray-800">{{ course_count }} รายวิชา</p>
+        </div>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow-md flex items-center space-x-4">
+        <div class="bg-blue-100 p-3 rounded-full">
+            <svg class="h-6 w-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        </div>
+        <div>
+            <p class="text-gray-500 text-sm font-medium">คำถามในคลัง</p>
+            <p class="text-2xl font-bold text-gray-800">{{ question_count }} ข้อ</p>
+        </div>
+    </div>
+    <div class="bg-white p-6 rounded-lg shadow-md flex items-center space-x-4">
+        <div class="bg-teal-100 p-3 rounded-full">
+            <svg class="h-6 w-6 text-teal-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+        </div>
+        <div>
+            <p class="text-gray-500 text-sm font-medium">ชุดข้อสอบที่สร้าง</p>
+            <p class="text-2xl font-bold text-gray-800">{{ exams.count }} ชุด</p>
+        </div>
+    </div>
+</div>
+
+<!-- Exams Table -->
+<div class="mt-8 bg-white p-6 rounded-lg shadow-md">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold text-gray-700">ชุดข้อสอบล่าสุดของฉัน</h2>
+        <a href="{% url 'course_list' %}" class="text-blue-500 hover:underline">จัดการรายวิชาทั้งหมด</a>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full">
+            <thead>
+                <tr>
+                    <th class="px-6 py-3 border-b-2 text-left">ชื่อชุดข้อสอบ</th>
+                    <th class="px-6 py-3 border-b-2 text-left">รายวิชา</th>
+                    <th class="px-6 py-3 border-b-2 text-left">วันที่สร้าง</th>
+                    <th class="px-6 py-3 border-b-2"></th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for exam in exams %}
+                <tr>
+                    <td class="px-6 py-4 font-medium">{{ exam.exam_name }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">{{ exam.course }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ exam.created_at|date:"d M Y" }}</td>
+                    <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
+                        <a href="{% url 'exam_detail' exam.pk %}" class="px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300">ดูรายละเอียด</a>
+                        <a href="{% url 'exam_update' exam.pk %}" class="px-3 py-1 bg-yellow-100 text-yellow-700 text-sm rounded hover:bg-yellow-200">แก้ไข</a>
+                        <a href="{% url 'exam_delete' exam.pk %}" class="px-3 py-1 bg-red-100 text-red-700 text-sm rounded hover:bg-red-200">ลบ</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center py-6 text-gray-500">
+                        คุณยังไม่ได้สร้างชุดข้อสอบ
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

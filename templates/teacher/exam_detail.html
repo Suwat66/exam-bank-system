@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load exam_extras %} {# Load custom template tags #}
+
+{% block title %}รายละเอียดชุดข้อสอบ: {{ exam.exam_name }}{% endblock %}
+
+{% block content %}
+<div class="flex flex-wrap gap-4 justify-between items-center mb-6">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-800">{{ exam.exam_name }}</h1>
+        <p class="text-gray-600 mt-1">รายวิชา: {{ exam.course }}</p>
+    </div>
+    <div class="flex items-center space-x-2">
+        <!-- Choice Format Toggle Buttons -->
+        <div class="flex rounded-md shadow-sm" role="group">
+            <a href="?format=thai" class="px-4 py-2 text-sm font-medium border rounded-l-lg 
+                {% if choice_format == 'thai' or not choice_format %} 
+                    bg-blue-600 text-white border-blue-600 z-10 
+                {% else %} 
+                    bg-white text-gray-700 border-gray-300 hover:bg-gray-50 
+                {% endif %}">
+                ก, ข, ค
+            </a>
+            <a href="?format=eng" class="px-4 py-2 text-sm font-medium border rounded-r-lg 
+                {% if choice_format == 'eng' %} 
+                    bg-blue-600 text-white border-blue-600 z-10
+                {% else %} 
+                    bg-white text-gray-700 border-gray-300 hover:bg-gray-50 
+                {% endif %}">
+                A, B, C
+            </a>
+        </div>
+        <!-- Export Buttons -->
+        <a href="{% url 'export_word' exam.pk %}?format={{ choice_format }}" class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-800 text-sm font-medium rounded-lg hover:bg-blue-200">ดาวน์โหลด (Word)</a>
+        <a href="{% url 'export_pdf' exam.pk %}?format={{ choice_format }}" class="inline-flex items-center px-4 py-2 bg-red-100 text-red-800 text-sm font-medium rounded-lg hover:bg-red-200">ดาวน์โหลด (PDF)</a>
+    </div>
+</div>
+
+<div class="bg-white p-8 rounded-lg shadow-md">
+    <h2 class="text-xl font-semibold mb-6">รายการคำถาม (ทั้งหมด {{ questions|length }} ข้อ)</h2>
+    <div class="space-y-8">
+    {% for question in questions %}
+        <div class="border-b pb-6 last:border-b-0 last:pb-0">
+            <div class="flex items-start">
+                <span class="font-semibold mr-2">{{ forloop.counter }}.</span>
+                <div class="flex-1">
+                    <p>{{ question.question_text|linebreaksbr }}</p>
+                    
+                    {# --- ส่วนที่เพิ่มเข้ามา: แสดงรูปภาพประกอบ --- #}
+                    {% if question.image %}
+                        <div class="mt-4">
+                            <a href="{{ question.image.url }}" target="_blank" title="คลิกเพื่อดูภาพขยาย">
+                                <img src="{{ question.image.url }}" alt="ภาพประกอบสำหรับคำถามที่ {{ forloop.counter }}" class="max-w-md max-h-80 rounded-lg border shadow-sm cursor-pointer">
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if question.question_type == 'MCQ' %}
+            <ul class="list-none mt-4 space-y-2 pl-8">
+                {% for choice in question.choices.all %}
+                <li class="flex items-start {% if choice.is_correct %}text-green-700 font-bold{% endif %}">
+                    {% if choice_format == 'eng' %}
+                        <span class="w-8 text-left -ml-2">{{ forloop.counter0|add:65|int_to_char }}.</span>
+                    {% else %}
+                        <span class="w-8 text-left -ml-2">{{ forloop.counter0|thai_choice_char }}.</span>
+                    {% endif %}
+                    <span class="flex-1">{{ choice.choice_text }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% elif question.question_type == 'SHORT' %}
+            <p class="mt-2 pl-6 text-blue-600"><strong>คำตอบ:</strong> {{ question.short_answer.answer_text }}</p>
+            {% endif %}
+
+            {% if question.explanation %}
+            <div class="mt-4 p-3 bg-gray-50 rounded-md text-sm text-gray-700 ml-6 border">
+                <strong>คำอธิบาย:</strong> {{ question.explanation|linebreaksbr }}
+            </div>
+            {% endif %}
+        </div>
+    {% empty %}
+        <p class="text-center text-gray-500 py-8">ชุดข้อสอบนี้ยังไม่มีคำถาม</p>
+    {% endfor %}
+    </div>
+</div>
+{% endblock %}

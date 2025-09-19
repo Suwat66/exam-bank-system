@@ -1,0 +1,17 @@
+{% extends "admin/category/list_base.html" %}
+
+{% block table_header %}
+    <th class="px-6 py-3 border-b-2 text-left">ชื่อระดับชั้น</th>
+{% endblock %}
+
+{% block table_body %}
+    {% for grade in grades %}
+    <tr>
+        <td class="px-6 py-4 border-b">{{ grade.grade_name }}</td>
+        <td class="px-6 py-4 border-b text-right space-x-4">
+            <a href="{% url 'grade_level_update' grade.pk %}" class="text-yellow-600 hover:underline">แก้ไข</a>
+            <a href="{% url 'grade_level_delete' grade.pk %}" class="text-red-600 hover:underline">ลบ</a>
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}

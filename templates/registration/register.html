@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}สมัครสมาชิก{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-screen bg-gray-100 py-12 px-4">
+    <div class="w-full max-w-lg p-8 space-y-6 bg-white rounded-lg shadow-xl">
+        <h2 class="text-3xl font-bold text-center text-gray-800">สมัครสมาชิกสำหรับครู</h2>
+        <p class="text-center text-gray-600 text-sm">หลังจากสมัครแล้ว โปรดรอการอนุมัติจากผู้ดูแลระบบ</p>
+        
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- แสดง Non-field errors (เช่น password ไม่ตรงกัน) -->
+            {% if form.non_field_errors %}
+                <div class="p-4 text-sm text-red-700 bg-red-100 rounded-lg">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <!-- ฟิลด์ข้อมูลส่วนตัว -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700">ชื่อจริง</label>
+                    {{ form.first_name }}
+                    {{ form.first_name.errors }}
+                </div>
+                <div>
+                    <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700">นามสกุล</label>
+                    {{ form.last_name }}
+                    {{ form.last_name.errors }}
+                </div>
+            </div>
+
+            <div>
+                <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700">อีเมล</label>
+                {{ form.email }}
+                {{ form.email.errors }}
+            </div>
+            
+            <div>
+                <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700">ชื่อผู้ใช้ (Username)</label>
+                {{ form.username }}
+                <p class="mt-2 text-xs text-gray-500">ต้องมีความยาวไม่เกิน 150 ตัวอักษร ใช้ได้เฉพาะตัวอักษร, ตัวเลข, และ @/./+/-/_</p>
+                {{ form.username.errors }}
+            </div>
+
+            <!-- ฟิลด์รหัสผ่าน -->
+            <div class="border-t pt-6 space-y-6">
+                <div>
+                    <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.password1.label }}</label>
+                    {{ form.password1 }}
+                    {% if form.password1.help_text %}
+                        <div class="mt-2 text-xs text-gray-500 space-y-1">
+                            {{ form.password1.help_text|linebreaksbr }}
+                        </div>
+                    {% endif %}
+                    {{ form.password1.errors }}
+                </div>
+
+                <div>
+                    <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.password2.label }}</label>
+                    {{ form.password2 }}
+                    {{ form.password2.errors }}
+                </div>
+            </div>
+
+            <button type="submit" class="w-full px-4 py-3 text-white bg-green-600 rounded-md hover:bg-green-700 font-semibold">
+                สมัครสมาชิก
+            </button>
+        </form>
+
+        <p class="text-center text-sm">มีบัญชีแล้ว? <a href="{% url 'accounts:login' %}" class="font-medium text-blue-600 hover:text-blue-500">เข้าสู่ระบบที่นี่</a></p>
+    </div>
+</div>
+{% endblock %}

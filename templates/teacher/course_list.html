@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}รายวิชาของฉัน{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">รายวิชาของฉัน</h1>
+    <a href="{% url 'course_create' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow">เพิ่มรายวิชาใหม่</a>
+</div>
+
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <div class="overflow-x-auto">
+        <table class="min-w-full">
+            <thead>
+                <tr>
+                    <th class="px-6 py-3 border-b-2 text-left">รหัสวิชา</th>
+                    <th class="px-6 py-3 border-b-2 text-left">ชื่อรายวิชา</th>
+                    <th class="px-6 py-3 border-b-2 text-left">ระดับชั้น</th>
+                    <th class="px-6 py-3 border-b-2"></th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for course in courses %}
+                <tr>
+                    <td class="px-6 py-4 font-mono font-semibold">{{ course.course_code }}</td>
+                    <td class="px-6 py-4">{{ course.subject_template.subject_name }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">{{ course.grade_level.grade_name }}</td>
+                    <td class="px-6 py-4 text-right space-x-4 whitespace-nowrap">
+                        <a href="{% url 'course_update' course.pk %}" class="text-yellow-600 hover:underline font-semibold">แก้ไข</a>
+                        <a href="{% url 'course_delete' course.pk %}" class="text-red-600 hover:underline font-semibold">ลบ</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center py-6 text-gray-500">
+                        <p class="mb-2">คุณยังไม่ได้สร้างรายวิชา</p>
+                        <a href="{% url 'course_create' %}" class="px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600">สร้างรายวิชาแรกของคุณ</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if is_paginated %}
+        <div class="mt-6">
+            {% include 'partials/_pagination_simple.html' %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

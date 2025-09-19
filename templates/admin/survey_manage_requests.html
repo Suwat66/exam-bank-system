@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}จัดการคำขอทำแบบประเมินซ้ำ{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">จัดการคำขอทำแบบประเมินซ้ำ</h1>
+</div>
+
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <p class="mb-4 text-gray-600">รายการนี้แสดงผู้ใช้ที่ส่งแบบประเมินแล้ว (สถานะล็อก) ท่านสามารถคลิก "ปลดล็อก" เพื่ออนุญาตให้ผู้ใช้สามารถส่งแบบประเมินฉบับใหม่ได้ (ข้อมูลเดิมจะถูกเขียนทับ)</p>
+    
+    <div class="overflow-x-auto">
+        <table class="min-w-full">
+            <thead>
+                <tr>
+                    <th class="px-6 py-3 border-b-2 text-left">ผู้ใช้งาน</th>
+                    <th class="px-6 py-3 border-b-2 text-left">โรงเรียน</th>
+                    <th class="px-6 py-3 border-b-2 text-left">วันที่ส่งล่าสุด</th>
+                    <th class="px-6 py-3 border-b-2 text-center">สถานะ</th>
+                    <th class="px-6 py-3 border-b-2"></th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for response in responses %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ response.user.username|default:"-" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">{{ response.school_name }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ response.submitted_at|date:"d M Y, H:i" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                            ล็อกอยู่
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                        {# ใช้ฟอร์มสำหรับการกระทำเพื่อความปลอดภัย (POST request) #}
+                        <form action="{% url 'feedback:unlock_survey' response.id %}" method="post" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="px-3 py-1 bg-green-500 text-white text-sm rounded-md hover:bg-green-600">
+                                ปลดล็อก
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-6 text-gray-500">ยังไม่มีผู้ที่ส่งแบบประเมิน</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
