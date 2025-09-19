@@ -81,3 +81,20 @@ class FullSurveyForm(forms.ModelForm):
                     widget=forms.RadioSelect,
                     required=True
                 )
+
+class ClearLogsForm(forms.Form):
+    """
+    Form for selecting the time period of logs to delete.
+    """
+    PERIOD_CHOICES = [
+        ('all', 'ล้างข้อมูล Log ทั้งหมด'),
+        (7, 'ล้างข้อมูลที่เก่ากว่า 7 วัน'),
+        (30, 'ล้างข้อมูลที่เก่ากว่า 30 วัน'),
+        (90, 'ล้างข้อมูลที่เก่ากว่า 90 วัน'),
+    ]
+    
+    period = forms.ChoiceField(
+        choices=PERIOD_CHOICES,
+        label="เลือกระยะเวลาของข้อมูลที่จะล้าง",
+        widget=forms.RadioSelect
+    )

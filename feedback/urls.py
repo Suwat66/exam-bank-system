@@ -7,7 +7,8 @@ from .views import (
     clear_surveys_view,
     export_logs_excel,
     manage_survey_requests,
-    unlock_survey
+    unlock_survey,
+    clear_logs_view
 )
 
 # กำหนด Namespace สำหรับ URL ทั้งหมดในแอปฯ นี้
@@ -27,4 +28,6 @@ urlpatterns = [
     # Admin URLs for Usage Log Management
     path('admin/logs/', usage_log_view, name='usage_logs'),
     path('admin/logs/export/excel/', export_logs_excel, name='export_logs_excel'),
+    
+    path('admin/logs/clear/', clear_logs_view, name='clear_logs'),
 ]

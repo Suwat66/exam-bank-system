@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}ยืนยันการล้างข้อมูล Log{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">ยืนยันการล้างข้อมูลบันทึกการใช้งาน</h1>
+    
+    <div class="bg-white p-8 rounded-lg shadow-md border-l-4 border-red-500">
+        <h2 class="text-xl font-semibold text-red-700">คำเตือน!</h2>
+        <p class="mt-4 text-gray-700">การล้างข้อมูล Log จะเป็นการลบข้อมูลอย่างถาวรและไม่สามารถกู้คืนได้ โปรดเลือกเงื่อนไขและตรวจสอบให้แน่ใจก่อนดำเนินการ</p>
+        
+        <form method="post" class="mt-8">
+            {% csrf_token %}
+            
+            <div class="space-y-4">
+                <p class="font-medium text-gray-800">{{ form.period.label }}</p>
+                {% for radio in form.period %}
+                    <div class="flex items-center">
+                        <label for="{{ radio.id_for_label }}" class="flex items-center cursor-pointer">
+                            {{ radio.tag }}
+                            <span class="ml-3 text-gray-700">{{ radio.choice_label }}</span>
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="flex items-center justify-end space-x-4 mt-8 border-t pt-6">
+                <a href="{% url 'feedback:usage_logs' %}" class="px-6 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 font-semibold">ยกเลิก</a>
+                <button type="submit" class="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-semibold">ยืนยันการล้างข้อมูล</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
