@@ -14,8 +14,6 @@ from .filters import LogFilter
 from .models import UsageLog, SurveyResponse, SurveyRating
 from .forms import FullSurveyForm, SURVEY_QUESTIONS
 
-from .forms import ClearLogsForm
-
 # ==============================================================================
 # Teacher-facing Views
 # ==============================================================================
@@ -270,32 +268,20 @@ def export_logs_excel(request):
 @user_passes_test(is_admin)
 def clear_logs_view(request):
     """
-    Handles the deletion of UsageLog records based on a selected time period.
+    Handles the deletion of ALL UsageLog records.
     Requires a POST request for confirmation.
     """
+    # ถ้าเป็นการกดปุ่ม "ยืนยันการลบ" (POST request)
     if request.method == 'POST':
-        form = ClearLogsForm(request.POST)
-        if form.is_valid():
-            period = form.cleaned_data['period']
-            
-            if period == 'all':
-                count, _ = UsageLog.objects.all().delete()
-                messages.success(request, f'ข้อมูล Log ทั้งหมดจำนวน {count} รายการ ถูกลบเรียบร้อยแล้ว')
-            else:
-                try:
-                    days = int(period)
-                    cutoff_date = now() - timedelta(days=days)
-                    logs_to_delete = UsageLog.objects.filter(action_time__lt=cutoff_date)
-                    count, _ = logs_to_delete.delete()
-                    messages.success(request, f'ข้อมูล Log ที่เก่ากว่า {days} วัน จำนวน {count} รายการ ถูกลบเรียบร้อยแล้ว')
-                except ValueError:
-                    messages.error(request, 'ระยะเวลาที่เลือกไม่ถูกต้อง')
+        # ลบข้อมูล Log ทั้งหมดโดยไม่มีเงื่อนไข
+        count, _ = UsageLog.objects.all().delete()
+        
+        # สร้างข้อความแจ้งเตือน
+        messages.success(request, f'ข้อมูล Log ทั้งหมดจำนวน {count} รายการ ถูกลบเรียบร้อยแล้ว')
+        
+        # ส่งกลับไปที่หน้ารายการ Log
+        return redirect('feedback:usage_logs')
 
-            return redirect('feedback:usage_logs')
-    else:
-        form = ClearLogsForm()
-
-    context = {
-        'form': form,
-    }
-    return render(request, 'admin/log_clear_confirm.html', context)
+    # ถ้าเป็นการเข้ามาครั้งแรก (GET request) ให้แสดงหน้ายืนยัน
+    # เราไม่จำเป็นต้องส่ง 'form' เข้าไปใน context อีกแล้ว
+    return render(request, 'admin/log_clear_confirm.html')
